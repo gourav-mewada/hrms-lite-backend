@@ -1,11 +1,20 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import employees, attendance
-from app.database import db
+from app.database import db, client
 from app.schemas import DashboardSummary
 from datetime import date
+import asyncio
 
 app = FastAPI(title="HRMS Lite API")
+
+@app.on_event("startup")
+async def startup_db_client():
+    try:
+        await client.admin.command('ping')
+        print("Successfully connected to MongoDB!")
+    except Exception as e:
+        print(f"Failed to connect to MongoDB: {e}")
 
 app.add_middleware(
     CORSMiddleware,
